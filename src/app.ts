@@ -1,6 +1,8 @@
 import express from 'express';
 import connectDB from '../config/db';
 import memberRouter from './modules/member/routes/member.routes';
+import passport from 'passport';
+import authRouter from './modules/member/routes/auth.routes';
 
 
 const app = express();
@@ -12,8 +14,11 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use('/api/members', memberRouter
-);
+app.use(passport.initialize());
+
+// Routes
+app.use('/api/auth', authRouter);
+app.use('/api/members', memberRouter);
 // app.use('/api/classes', classRoutes);
 // app.use('/api/bookings', bookingRoutes);
 
