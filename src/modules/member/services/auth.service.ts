@@ -12,7 +12,7 @@ class AuthService {
   // Generate JWT token
   generateToken(member: IMember): string {
     // Ensure you have a JWT_SECRET environment variable
-    const secret = process.env.JWT_SECRET || 'your_jwt_secret';
+    const secret = process.env.JWT_SECRET!;
     
     return jwt.sign(
       { 
@@ -44,16 +44,12 @@ class AuthService {
     return member;
   }
 
-  // Register a new member
   async registerMember(memberData: Partial<IMember>): Promise<IMember> {
-    // Check if a member with this email already exists
     const existingMember = await this.memberService.findByEmail(memberData.email || '');
     
     if (existingMember) {
       throw new Error('Email already in use');
     }
-    
-    // Create the new member
     return this.memberService.create(memberData);
   }
 }

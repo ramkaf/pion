@@ -1,26 +1,50 @@
-import express from 'express';
+// src/app.ts
+import express, { Express } from 'express';
 import connectDB from '../config/db';
-import memberRouter from './modules/member/routes/member.routes';
 import passport from 'passport';
+import memberRouter from './modules/member/routes/member.routes';
 import authRouter from './modules/member/routes/auth.routes';
+import courseRouter from './modules/course/routes/course.routes';
+import bookingRouter from './modules/booking/routes/booking.routes'; // Assuming the booking router is created
+import Database from './config/database';
+import { errorHandler, notFoundHandler } from '../common/errorHandler';
 
+class App {
+  public app: Express;
+  private database: Database;
 
-const app = express();
+  constructor() {
+    this.app = express();
+    this.database = new Database(); 
+    this.setupMiddleware();
+    this.setupRoutes();
+    this.setupErrorHandlers();
+  }
 
-// Middleware
-app.use(express.json());
+  private setupMiddleware(): void {
+    this.app.use(express.json());
+    this.database.connect();
+    this.app.use(passport.initialize()); 
+  }
 
-// Connect to DB
-connectDB();
+  private setupRoutes(): void {
+    this.app.use('/api/auth', authRouter);
+    this.app.use('/api/members', memberRouter);
+    this.app.use('/api/courses', courseRouter);
+    this.app.use('/api/bookings', bookingRouter); // Booking routes
+  }
 
-// Routes
-app.use(passport.initialize());
+  private setupErrorHandlers(): void {
+    this.app.use(notFoundHandler);
+    this.app.use(errorHandler);
+  }
 
-// Routes
-app.use('/api/auth', authRouter);
-app.use('/api/members', memberRouter);
-// app.use('/api/classes', classRoutes);
-// app.use('/api/bookings', bookingRoutes);
+  public start(): void {
+    const port = process.env.PORT || 5000; // Use 5000 as default port if PORT is not set in .env
+    this.app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  }
+}
 
-app.listen(process.env.PORT! , ()=>console.log(`running server on port ${process.env.PORT}`));
-export default app;
+export default App;

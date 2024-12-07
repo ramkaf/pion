@@ -5,22 +5,17 @@ class BaseService<T extends Document> {
 
   // Create
   async create(data: Partial<T>): Promise<T> {
-    console.log("here");
-    
     const createdItem = new this.model(data);
     return createdItem.save();
   }
 
   // Get one by ID
-  async getOne(id: string): Promise<T | null> {
-    return this.model.findById(id).exec();
+  async get(id?: string): Promise<T | T[] | null> {
+    if (id) {
+      return this.model.findById(id).exec();
+    }
+      return this.model.find().exec();
   }
-
-  // Get all
-  async getAll(): Promise<T[]> {
-    return this.model.find().exec();
-  }
-
   // Update
   async update(id: string, data: Partial<T>): Promise<T | null> {
     return this.model.findByIdAndUpdate(id, data, { new: true }).exec();

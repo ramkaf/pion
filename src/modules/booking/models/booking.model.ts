@@ -1,15 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface IBooking extends Document {
-  memberId: mongoose.Types.ObjectId;
-  classId: mongoose.Types.ObjectId;
-  date: Date;
+export interface IBooking extends Document {
+  _id: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId; // Reference to User
+  class: mongoose.Types.ObjectId; // Reference to Class
 }
 
-const bookingSchema = new Schema<IBooking>({
-  memberId: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
-  classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
-  date: { type: Date, required: true },
-}, { timestamps: true });
+const bookingSchema = new Schema<IBooking>(
+  {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    class: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model<IBooking>('Booking', bookingSchema);
+export const Booking =  mongoose.model<IBooking>('Booking', bookingSchema);

@@ -18,7 +18,6 @@ class AuthController {
     try {
       const { firstname, lastname, email, password, birthday, phonenumber } = req.body;
 
-      // Validate input
       if (!firstname || !lastname || !email || !password || !birthday || !phonenumber) {
         res.status(400).json({ message: 'All fields are required' });
         return;
@@ -45,7 +44,7 @@ class AuthController {
           id: newMember._id,
           firstname: newMember.firstname,
           lastname: newMember.lastname,
-          email: newMember.email
+          role:newMember.role
         }
       });
     } catch (error: any) {
@@ -89,7 +88,8 @@ class AuthController {
           id: member._id,
           firstname: member.firstname,
           lastname: member.lastname,
-          email: member.email
+          email: member.email,
+          role:member.role
         }
       });
     } catch (error: any) {

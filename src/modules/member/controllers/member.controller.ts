@@ -35,7 +35,7 @@ class MemberController {
   // Get all Members
   async getMembers(req: Request, res: Response): Promise<void> {
     try {
-      const members = await this.memberService.getAll();
+      const members = await this.memberService.get();
       res.json(members);
     } catch (error: any) {
       res.status(500).json({ message: 'Error fetching Members', error: error.message });
@@ -45,7 +45,7 @@ class MemberController {
   // Get a single Member by ID
   async getMemberById(req: Request, res: Response): Promise<void> {
     try {
-      const member = await this.memberService.getOne(req.params.id);
+      const member = await this.memberService.get(req.params.id);
       if (!member) {
         res.status(404).json({ message: 'Member not found' });
         return;
