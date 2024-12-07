@@ -1,4 +1,3 @@
-// src/app.ts
 import express, { Express } from 'express';
 import connectDB from '../config/db';
 import passport from 'passport';
@@ -7,7 +6,7 @@ import authRouter from './modules/member/routes/auth.routes';
 import courseRouter from './modules/course/routes/course.routes';
 import bookingRouter from './modules/booking/routes/booking.routes'; // Assuming the booking router is created
 import Database from './config/database';
-import { errorHandler, notFoundHandler } from '../common/errorHandler';
+import { errorHandler, notFoundHandler } from '../common/middleware/errorMiddleware'; // Updated to use correct error middleware
 
 class App {
   public app: Express;
@@ -35,8 +34,8 @@ class App {
   }
 
   private setupErrorHandlers(): void {
-    this.app.use(notFoundHandler);
-    this.app.use(errorHandler);
+    this.app.use(notFoundHandler); // 404 error handler
+    this.app.use(errorHandler);    // Global error handler
   }
 
   public start(): void {

@@ -1,16 +1,16 @@
-// src/middlewares/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
+import { AppError } from './errors/AppError';
+import { ResponseHandler } from './utils/ResponseHandler';
 
-// 404 Handler for unmatched routes
-export const notFoundHandler = (req: Request, res: Response) => {
-  res.status(404).json({ message: 'Route not found' });
+const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+  // Check if the error is an instance of AppError or any specific error class
+  if (err instanceof AppError) {
+    return err.sendError(res); // Use the sendError method from the AppError class
+  }
+
+  // Handle unexpected internal server errors
+  console.error(err);  // Log the error stack for internal server errors
+  return ResponseHandler.error(res, 'Something went wrong', 500);
 };
 
-// General Error Handler
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack); // Log the error stack for debugging (use logging system in production)
-  res.status(500).json({
-    message: 'Something went wrong',
-    error: err.message || 'Internal server error',
-  });
-};
+export default errorHandler;

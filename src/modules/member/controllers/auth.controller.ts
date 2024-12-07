@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import AuthService from '../services/auth.service';
+import { ResponseHandler } from '../../../../common/utils/ResponseHandler';
+import { AppError } from '../../../../common/errors/AppError';
 
 class AuthController {
   private authService: AuthService;
@@ -18,9 +20,9 @@ class AuthController {
     try {
       const { firstname, lastname, email, password, birthday, phonenumber } = req.body;
 
+      // Validate input
       if (!firstname || !lastname || !email || !password || !birthday || !phonenumber) {
-        res.status(400).json({ message: 'All fields are required' });
-        return;
+        return ResponseHandler.error(res, 'All fields are required', 400);
       }
 
       // Register the member
@@ -37,22 +39,13 @@ class AuthController {
       const token = this.authService.generateToken(newMember);
 
       // Respond with success and token
-      res.status(201).json({ 
-        message: 'Member created successfully', 
-        token,
-        member: {
-          id: newMember._id,
-          firstname: newMember.firstname,
-          lastname: newMember.lastname,
-          role:newMember.role
-        }
-      });
+      return ResponseHandler.success(res, { user: newMember, token }, 'Signup successful');
     } catch (error: any) {
       // Handle specific error cases
       if (error.message === 'Email already in use') {
-        res.status(409).json({ message: 'Email already in use' });
+        return ResponseHandler.error(res, 'Email already in use', 409);
       } else {
-        res.status(500).json({ message: 'Error creating member', error: error.message });
+        return ResponseHandler.error(res, 'Error creating member', 500);
       }
     }
   }
@@ -64,8 +57,7 @@ class AuthController {
 
       // Validate input
       if (!email || !password) {
-        res.status(400).json({ message: 'Email and password are required' });
-        return;
+        return ResponseHandler.error(res, 'Email and password are required', 400);
       }
 
       // Verify login credentials
@@ -73,38 +65,27 @@ class AuthController {
 
       // If login fails
       if (!member) {
-        res.status(401).json({ message: 'Invalid email or password' });
-        return;
+        return ResponseHandler.error(res, 'Invalid email or password', 401);
       }
 
       // Generate JWT token
       const token = this.authService.generateToken(member);
 
       // Respond with success and token
-      res.json({ 
-        message: 'Login successful', 
-        token,
-        member: {
-          id: member._id,
-          firstname: member.firstname,
-          lastname: member.lastname,
-          email: member.email,
-          role:member.role
-        }
-      });
+      return ResponseHandler.success(res, { user: member, token }, 'Login successful');
     } catch (error: any) {
-      res.status(500).json({ message: 'Error during login', error: error.message });
+      return ResponseHandler.error(res, 'Error during login', 500);
     }
   }
 
-  // Logout route handler (mostly client-side, but we'll provide a server-side logout)
+  // Logout route handler
   async logout(req: Request, res: Response): Promise<void> {
     try {
       // In a JWT-based auth system, logout typically means clearing the client-side token
       // We can add token blacklisting if needed in the future
-      res.json({ message: 'Logout successful' });
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error during logout', error: error.message });
+      return ResponseHandler.success(res, null, 'Logout successful');
+    } catch (error:any) {
+      return ResponseHandler.error(res, 'Error during logout', 500);
     }
   }
 }
