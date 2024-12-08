@@ -7,6 +7,7 @@ import courseRouter from './modules/course/routes/course.routes';
 import bookingRouter from './modules/booking/routes/booking.routes'; // Assuming the booking router is created
 import Database from './config/database';
 import { errorHandler, notFoundHandler } from '../common/middleware/errorMiddleware'; // Updated to use correct error middleware
+import adminRouter from './modules/admin/routes/admin.routes';
 
 class App {
   public app: Express;
@@ -27,10 +28,12 @@ class App {
   }
 
   private setupRoutes(): void {
+    
+    this.app.use('/api/admin' , adminRouter)
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/members', memberRouter);
     this.app.use('/api/courses', courseRouter);
-    this.app.use('/api/bookings', bookingRouter); // Booking routes
+    this.app.use('/api/bookings', bookingRouter);
   }
 
   private setupErrorHandlers(): void {

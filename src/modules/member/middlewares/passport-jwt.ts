@@ -1,10 +1,12 @@
 import passport from 'passport';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { Member } from '../models/member.model';
+// import * as dotenv from 'dotenv'
+// dotenv.config()
 
 const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: process.env.JWT_SECRET || 'your_jwt_secret'
+    secretOrKey: process.env.JWT_SECRET!
   };
   
   // Configure Passport JWT Strategy
@@ -25,7 +27,5 @@ const opts = {
     }
   }));
   
-  // Middleware to protect routes
-  const isAuthenticated = passport.authenticate('jwt', { session: false });
-export default isAuthenticated
 
+  export {passport};

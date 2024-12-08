@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import AuthService from '../services/auth.service';
 import { ResponseHandler } from '../../../../common/utils/ResponseHandler';
-import { AppError } from '../../../../common/errors/AppError';
+import MemberService from '../services/member.service';
+
 
 class AuthController {
   private authService: AuthService;
-
+  private memberService:MemberService
   constructor() {
     this.authService = new AuthService();
-    
-    // Bind methods to ensure correct context
+    this.memberService = new MemberService();
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
@@ -18,47 +18,22 @@ class AuthController {
   // Signup route handler
   async signup(req: Request, res: Response): Promise<void> {
     try {
-      const { firstname, lastname, email, password, birthday, phonenumber } = req.body;
-
-      // Validate input
-      if (!firstname || !lastname || !email || !password || !birthday || !phonenumber) {
-        return ResponseHandler.error(res, 'All fields are required', 400);
-      }
-
-      // Register the member
-      const newMember = await this.authService.registerMember({
-        firstname,
-        lastname,
-        email,
-        password,
-        birthday,
-        phonenumber
-      });
-
-      // Generate JWT token
+      const {email} = req.body
+      const memebr = await this.memberService.findByEmail(email)
+      if (memebr)
+        return ResponseHandler.error(res, 'Email already in use', 409);
+      const newMember = await this.authService.registerMember({...req.body});
       const token = this.authService.generateToken(newMember);
-
-      // Respond with success and token
       return ResponseHandler.success(res, { user: newMember, token }, 'Signup successful');
     } catch (error: any) {
-      // Handle specific error cases
-      if (error.message === 'Email already in use') {
-        return ResponseHandler.error(res, 'Email already in use', 409);
-      } else {
         return ResponseHandler.error(res, 'Error creating member', 500);
       }
     }
-  }
 
   // Login route handler
   async login(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password } = req.body;
-
-      // Validate input
-      if (!email || !password) {
-        return ResponseHandler.error(res, 'Email and password are required', 400);
-      }
+      const {email , password} = req.body
       const member = await this.authService.verifyLogin(email, password);
       if (!member) {
         return ResponseHandler.error(res, 'Invalid email or password', 401);
@@ -66,6 +41,8 @@ class AuthController {
       const token = this.authService.generateToken(member);
       return ResponseHandler.success(res, { user: member, token }, 'Login successful');
     } catch (error: any) {
+      console.log(error);
+      
       return ResponseHandler.error(res, 'Error during login', 500);
     }
   }

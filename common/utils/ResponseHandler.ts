@@ -7,7 +7,7 @@ export class ResponseHandler {
       });
     }
   
-    static error(res: any, message: string, statusCode: number = 500) {
+    static error(res: any, message: string | string[], error:any = null ,statusCode: number = 500) {
       return res.status(statusCode).json({
         status: 'error',
         message,

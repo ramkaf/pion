@@ -1,4 +1,5 @@
 import { Model, Document } from 'mongoose';
+import { NotFoundError } from '../../../common/errors/AppError';
 
 class BaseService<T extends Document> {
   constructor(protected model: Model<T>) {}
@@ -18,12 +19,18 @@ class BaseService<T extends Document> {
   }
   // Update
   async update(id: string, data: Partial<T>): Promise<T | null> {
-    return this.model.findByIdAndUpdate(id, data, { new: true }).exec();
+    const document = await this.model.findByIdAndUpdate(id, data, { new: true }).exec();
+    if (!document)
+      throw new NotFoundError('no document found with provided id')
+    return document
   }
 
   // Delete
   async delete(id: string): Promise<T | null> {
-    return this.model.findByIdAndDelete(id).exec();
+    const document = await this.model.findByIdAndDelete(id).exec();
+    if (!document)
+      throw new NotFoundError('document not found with that id')
+    return document
   }
 }
 
