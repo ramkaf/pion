@@ -28,3 +28,4 @@ const opts = {
   // Middleware to protect routes
   const isAuthenticated = passport.authenticate('jwt', { session: false });
 export default isAuthenticated
+

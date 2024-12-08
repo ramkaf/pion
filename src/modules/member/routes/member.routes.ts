@@ -24,3 +24,5 @@ memberRouter.get('/profile/my-profile', (req, res) => {
     });
   });
 export default memberRouter;
+
+

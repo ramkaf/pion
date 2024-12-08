@@ -12,3 +12,5 @@ bookingRouter.patch('/:id', bookingController.updateBooking);
 bookingRouter.delete('/:id', bookingController.deleteBooking);
 
 export default bookingRouter;
+
+

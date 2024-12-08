@@ -59,30 +59,18 @@ class AuthController {
       if (!email || !password) {
         return ResponseHandler.error(res, 'Email and password are required', 400);
       }
-
-      // Verify login credentials
       const member = await this.authService.verifyLogin(email, password);
-
-      // If login fails
       if (!member) {
         return ResponseHandler.error(res, 'Invalid email or password', 401);
       }
-
-      // Generate JWT token
       const token = this.authService.generateToken(member);
-
-      // Respond with success and token
       return ResponseHandler.success(res, { user: member, token }, 'Login successful');
     } catch (error: any) {
       return ResponseHandler.error(res, 'Error during login', 500);
     }
   }
-
-  // Logout route handler
   async logout(req: Request, res: Response): Promise<void> {
     try {
-      // In a JWT-based auth system, logout typically means clearing the client-side token
-      // We can add token blacklisting if needed in the future
       return ResponseHandler.success(res, null, 'Logout successful');
     } catch (error:any) {
       return ResponseHandler.error(res, 'Error during logout', 500);
@@ -91,3 +79,5 @@ class AuthController {
 }
 
 export default AuthController;
+
+

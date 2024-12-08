@@ -13,3 +13,5 @@ class MemberService extends BaseService<IMember> {
 }
 
 export default MemberService;
+
+

@@ -13,3 +13,5 @@
   }, { timestamps: true });
 
   export const Course = mongoose.model<ICourse>('Course', courseSchema);
+
+

@@ -10,3 +10,4 @@ authRouter.post('/login', authController.login);
 authRouter.post('/logout', isAuthenticated, authController.logout);
 
 export default authRouter;
+

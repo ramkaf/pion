@@ -57,3 +57,4 @@ memberSchema.pre<IMember>('save', async function(next) {
  const Member = mongoose.model<IMember>('Member', memberSchema);
 
  export  {Member , IMember}
+

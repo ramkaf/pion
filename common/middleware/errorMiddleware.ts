@@ -17,3 +17,5 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   console.error(err);
   return ResponseHandler.error(res, 'Something went wrong', 500);
 };
+
+

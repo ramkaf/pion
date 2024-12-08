@@ -13,3 +13,4 @@ courseRouter.patch('/:id', courseController.updateCourse);
 courseRouter.delete('/:id', courseController.deleteCourse);
 
 export default courseRouter;
+

@@ -14,3 +14,5 @@ const isAdmin = (req: Request, res: Response, next: NextFunction):any=> {
 };
 
 export default isAdmin;
+
+

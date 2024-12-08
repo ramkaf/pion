@@ -13,3 +13,5 @@ class CourseService extends BaseService<ICourse> {
 }
 
 export default CourseService;
+
+
