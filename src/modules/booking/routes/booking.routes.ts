@@ -1,22 +1,31 @@
-import { Router } from 'express';
-import {} from '../../member/middlewares/passport-jwt';
-import { isAuthenticated } from '../../member/middlewares/isAuthenticated.middleware';
-import { validator } from '../../../../common/middleware/validator';
-import isAdmin from '../../member/middlewares/isAdmin.middleware';
-import BookingController from '../controllers/booking.controller';
-import { createBookingSchema } from '../validation/create-booking.schema';
-import { bookingGetOneByIdSchema, bookingGetOneSchema } from '../validation/get-booking.schema';
-import { updateBookingSchema } from '../validation/update-booking.schema';
-
+import { Router } from "express";
+import {} from "../../member/middlewares/passport-jwt";
+import { isAuthenticated } from "../../member/middlewares/isAuthenticated.middleware";
+import { validator } from "../../../../common/middleware/validator";
+import isAdmin from "../../member/middlewares/isAdmin.middleware";
+import BookingController from "../controllers/booking.controller";
+import { createBookingSchema } from "../validation/create-booking.schema";
+import {
+  bookingGetOneByIdSchema,
+  bookingGetOneSchema,
+} from "../validation/get-booking.schema";
+import { updateBookingSchema } from "../validation/update-booking.schema";
+import { authorizeUserOrAdmin } from "../../../modules/member/middlewares/authorize.middleware";
 
 const bookingController = new BookingController();
-const courseRouter = Router();
-courseRouter.use(isAuthenticated)
+const bookingRouter = Router();
+bookingRouter.use(isAuthenticated);
 
-courseRouter.post('/', validator(createBookingSchema,'body') , bookingController.create);
-// courseRouter.get('/:id?', validator(bookingGetOneSchema ,'params'),bookingController.get);
-// courseRouter.patch('/',validator(updateBookingSchema , 'body'), bookingController.update);
-courseRouter.delete('/:id', validator(bookingGetOneByIdSchema , 'params'), bookingController.delete);
+bookingRouter.post(
+  "/",
+  validator(createBookingSchema, "body"),
+  authorizeUserOrAdmin('member','body'),
+  bookingController.create,
+);
+bookingRouter.delete(
+  "/:id",
+  validator(bookingGetOneByIdSchema, "params"),
+  bookingController.delete,
+);
 
-export default courseRouter;
-
+export default bookingRouter;

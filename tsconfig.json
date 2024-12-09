@@ -1,5 +1,5 @@
 {
-    "compilerOptions": {
+  "compilerOptions": {
     "types": ["node"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -10,8 +10,7 @@
     "skipLibCheck": true,
     "baseUrl": "."
   },
-  "ts-node": {
-  },
+  "ts-node": {},
   "files": ["src/types.d.ts"],
   // "files": ["src/type.d.ts"], // global type
   "include": ["src/**/*"]

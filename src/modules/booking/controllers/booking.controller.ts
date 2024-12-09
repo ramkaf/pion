@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
-import { ResponseHandler } from '../../../../common/utils/ResponseHandler'; // Adjust path as necessary
-import BookingService from '../services/booking.service'; // Adjust path as necessary
-import { Booking, IBooking } from '../models/booking.model';
+import { Request, Response } from "express";
+import { ResponseHandler } from "../../../../common/utils/ResponseHandler"; // Adjust path as necessary
+import BookingService from "../services/booking.service"; // Adjust path as necessary
+import { Booking, IBooking } from "../models/booking.model";
 
 class BookingController {
   private bookingService: BookingService;
@@ -16,20 +16,28 @@ class BookingController {
   // Create a new booking
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const {_id:member} = req.user!
-      const booking = await this.bookingService.create({ ...req.body , member });
-      return ResponseHandler.success(res, booking, 'Booking created successfully');
+      const { _id: member } = req.user!;
+      const booking = await this.bookingService.create({ ...req.body, member });
+      return ResponseHandler.success(
+        res,
+        booking,
+        "Booking created successfully",
+      );
     } catch (error: any) {
       console.error(error);
-      return ResponseHandler.error(res, 'Error in createBooking controller', error);
+      return ResponseHandler.error(
+        res,
+        "Error in createBooking controller",
+        error,
+      );
     }
   }
 
   // Get booking(s) by ID or all bookings
   async getAllBookings(): Promise<IBooking[]> {
     return Booking.find()
-      .populate('member', 'firstname lastname email') // Include specific fields of member
-      .populate('course', 'title description'); // Include specific fields of course
+      .populate("member", "firstname lastname email") // Include specific fields of member
+      .populate("course", "title description"); // Include specific fields of course
   }
 
   // Update booking by ID
@@ -37,10 +45,18 @@ class BookingController {
     try {
       const { id, ...rest } = req.body;
       const booking = await this.bookingService.update(id, rest);
-      return ResponseHandler.success(res, booking, 'Booking updated successfully');
+      return ResponseHandler.success(
+        res,
+        booking,
+        "Booking updated successfully",
+      );
     } catch (error: any) {
       console.error(error);
-      return ResponseHandler.error(res, 'Error in updateBooking controller', error);
+      return ResponseHandler.error(
+        res,
+        "Error in updateBooking controller",
+        error,
+      );
     }
   }
 
@@ -48,11 +64,20 @@ class BookingController {
   async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const booking = await this.bookingService.delete(id);
-      return ResponseHandler.success(res, booking, 'Booking deleted successfully');
+      const {_id:member} = req.user!
+      const booking = await this.bookingService.delete(id , member.toString());
+      return ResponseHandler.success(
+        res,
+        booking,
+        "Booking deleted successfully",
+      );
     } catch (error: any) {
       console.error(error);
-      return ResponseHandler.error(res, 'Error in deleteBooking controller', error);
+      return ResponseHandler.error(
+        res,
+        "Error in deleteBooking controller",
+        error,
+      );
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ResponseHandler } from '../utils/ResponseHandler';
+import { ResponseHandler } from "../utils/ResponseHandler";
 
 export class AppError extends Error {
   public statusCode: number;
@@ -11,38 +11,35 @@ export class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
-  // Instead of having a sendError method, use ResponseHandler here directly
   public sendError(res: any) {
     return ResponseHandler.error(res, this.message, this.statusCode);
   }
 }
 
 export class NotFoundError extends AppError {
-  constructor(message: string = 'Not Found') {
+  constructor(message: string = "Not Found") {
     super(message, 404);
   }
 }
 export class ForbiddenError extends AppError {
-  constructor(message: string = 'Forbiiden') {
+  constructor(message: string = "Forbiiden") {
     super(message, 404);
   }
 }
 export class BadRequestError extends AppError {
-  constructor(message: string = 'Bad Request') {
+  constructor(message: string = "Bad Request") {
     super(message, 400);
   }
 }
 
 export class UnauthorizedError extends AppError {
-  constructor(message: string = 'Unauthorized') {
+  constructor(message: string = "Unauthorized") {
     super(message, 401);
   }
 }
 
 export class InternalServerError extends AppError {
-  constructor(message: string = 'Internal Server Error') {
+  constructor(message: string = "Internal Server Error") {
     super(message, 500);
   }
 }
-
-
