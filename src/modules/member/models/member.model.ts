@@ -2,18 +2,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs'
 
 export enum Role {
-  User = 'user',
-  Admin = 'admin',
+  ADMIN = "admin",
+  USER = "user",
 }
 
 interface IMember extends Document {
+    _id: mongoose.Types.ObjectId;
     firstname: string;
     lastname: string;
     email: string;
     password: string;
     birthday: Date;
     phonenumber: string;
-    role: Role;
+    role: Role, 
     comparePassword(candidatePassword: string): Promise<boolean>;
     createdAt?: Date;
     updatedAt?: Date;
@@ -26,12 +27,7 @@ const memberSchema = new Schema<IMember>({
     password: { type: String, required: true },
     birthday: { type: Date, required: true },
     phonenumber: { type: String, required: true },
-    role: {
-      type: String,
-      enum: Object.values(Role), // Use the enum values
-      default: Role.User, // Default to 'user'
-      required: true,
-    }
+    role: { type: String, enum: Object.values(Role), default: Role.USER },
     
 }, { timestamps: true });
 
@@ -42,7 +38,7 @@ memberSchema.pre<IMember>('save', async function(next) {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(this.password, salt);
       this.password = hash;
-      this.role = Role.User
+      this.role = Role.USER;
       next();
     } catch (error: any) {
       return next(error);

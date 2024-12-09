@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ResponseHandler } from '../../../../common/utils/ResponseHandler'; // Adjust path as necessary
 import BookingService from '../services/booking.service'; // Adjust path as necessary
+import { Booking, IBooking } from '../models/booking.model';
 
 class BookingController {
   private bookingService: BookingService;
@@ -8,7 +9,6 @@ class BookingController {
   constructor() {
     this.bookingService = new BookingService();
     this.create = this.create.bind(this);
-    this.get = this.get.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
   }
@@ -26,17 +26,10 @@ class BookingController {
   }
 
   // Get booking(s) by ID or all bookings
-  async get(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const booking = id
-        ? await this.bookingService.get(id)
-        : await this.bookingService.get();
-      return ResponseHandler.success(res, booking);
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(res, 'Error in getBooking controller', error);
-    }
+  async getAllBookings(): Promise<IBooking[]> {
+    return Booking.find()
+      .populate('member', 'firstname lastname email') // Include specific fields of member
+      .populate('course', 'title description'); // Include specific fields of course
   }
 
   // Update booking by ID

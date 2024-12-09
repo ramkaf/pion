@@ -22,7 +22,11 @@ export class NotFoundError extends AppError {
     super(message, 404);
   }
 }
-
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Forbiiden') {
+    super(message, 404);
+  }
+}
 export class BadRequestError extends AppError {
   constructor(message: string = 'Bad Request') {
     super(message, 400);

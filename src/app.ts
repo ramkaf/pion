@@ -28,9 +28,8 @@ class App {
   }
 
   private setupRoutes(): void {
-    
-    this.app.use('/api/admin' , adminRouter)
     this.app.use('/api/auth', authRouter);
+    this.app.use('/api/admin', adminRouter);
     this.app.use('/api/members', memberRouter);
     this.app.use('/api/courses', courseRouter);
     this.app.use('/api/bookings', bookingRouter);

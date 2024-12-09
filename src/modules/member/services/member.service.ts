@@ -1,31 +1,47 @@
 import BaseService from "../../base/base.service";
-import { IMember, Member } from "../models/member.model";
+import { IMember, Member, Role } from "../models/member.model";
 
 class MemberService extends BaseService<IMember> {
   constructor() {
     super(Member);
   }
+  async getAllMembersWithTheirCourse(): Promise<any[]> {
+    return this.model.find().populate({
+      path: 'bookings', // Populate the bookings (associated courses)
+      populate: {
+        path: 'course', // Populate the course details from the course model
+        select: 'name description' // Select specific course fields
+      }
+    });;
+  }
 
-  // You can add additional methods specific to Member if needed
   async findByEmail(email: string): Promise<IMember | null> {
     return this.model.findOne({ email }).exec();
   }
 
-  async findWithCourses(id:string) :Promise<IMember |IMember[] | null>{
-
-    const result = id? await Member.findById(id)
+  async findWithCourses(id:string) :Promise<IMember | null>{
+    try {
+      const result = await Member.findById(id)
     .populate({
       path: 'courses', // The field in the Member model referencing Course
       select: 'name description duration', // Adjust fields to include as needed
     })
-    .exec() : await Member.find()
-    .populate({
-      path: 'courses', // The field in the Member model referencing Course
-      select: 'name description duration', // Adjust fields to include as needed
-    })
-    .exec();
-
+    .exec()
     return result
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async updateRoleToAdmin(id:string): Promise<IMember | null> {
+    try {
+      const member = await Member.findByIdAndUpdate(id , {role : Role.ADMIN});
+      if (!member) 
+        throw new Error('Member not found');
+      return member;
+    } catch (error:any) {
+      throw new Error(error.message);
+    }
   }
 }
 

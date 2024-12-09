@@ -11,11 +11,11 @@ import { updateBookingSchema } from '../validation/update-booking.schema';
 
 const bookingController = new BookingController();
 const courseRouter = Router();
-courseRouter.use(isAuthenticated , isAdmin)
+courseRouter.use(isAuthenticated)
 
 courseRouter.post('/', validator(createBookingSchema,'body') , bookingController.create);
-courseRouter.get('/:id?', validator(bookingGetOneSchema ,'params'),bookingController.get);
-courseRouter.patch('/',validator(updateBookingSchema , 'body'), bookingController.update);
+// courseRouter.get('/:id?', validator(bookingGetOneSchema ,'params'),bookingController.get);
+// courseRouter.patch('/',validator(updateBookingSchema , 'body'), bookingController.update);
 courseRouter.delete('/:id', validator(bookingGetOneByIdSchema , 'params'), bookingController.delete);
 
 export default courseRouter;

@@ -11,12 +11,12 @@ import isAdmin from '../../member/middlewares/isAdmin.middleware';
 
 const courseController = new CourseController();
 const courseRouter = Router();
-courseRouter.use(isAuthenticated , isAdmin)
+courseRouter.use(isAuthenticated)
 
-courseRouter.post('/', validator(courseCreateSchema,'body') , courseController.createCourse);
+courseRouter.post('/', isAdmin , validator(courseCreateSchema,'body') , courseController.createCourse);
 courseRouter.get('/:id?', validator(courseGetOneSchema ,'params'),courseController.getCourse);
-courseRouter.patch('/',validator(courseUpdateSchema , 'body'), courseController.updateCourse);
-courseRouter.delete('/:id', validator(courseGetOneByIdSchema , 'params'), courseController.deleteCourse);
+courseRouter.patch('/',isAdmin ,validator(courseUpdateSchema , 'body'), courseController.updateCourse);
+courseRouter.delete('/:id', isAdmin , validator(courseGetOneByIdSchema , 'params'), courseController.deleteCourse);
 
 export default courseRouter;
 

@@ -6,7 +6,7 @@ const isAdmin = (req: Request, res: Response, next: NextFunction):any=> {
     return res.status(401).json({ message: 'Unauthorized' });
   }
   const user = req.user as { role: Role }; 
-  if (user.role === Role.Admin) {
+  if (user.role === Role.ADMIN) {
     return next(); 
   }
 
