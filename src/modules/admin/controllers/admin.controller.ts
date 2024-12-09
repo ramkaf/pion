@@ -1,175 +1,135 @@
-import { NextFunction, Request, Response } from "express";
-import { ResponseHandler } from "../../../../common/utils/ResponseHandler"; // Adjust path as necessary
+import { Request, Response, NextFunction } from "express";
+import { ResponseHandler } from "../../../../common/utils/ResponseHandler";
 import MemberService from "../../../modules/member/services/member.service";
 import CourseService from "../../../modules/course/services/course.service";
-import { NotFoundError } from "../../../../common/errors/AppError";
 import BookingService from "../../../modules/booking/services/booking.service";
+import { NotFoundError } from "../../../../common/errors/AppError";
 
 class AdminController {
   private memberService: MemberService;
   private courseService: CourseService;
   private bookingService: BookingService;
+
   constructor() {
     this.memberService = new MemberService();
     this.courseService = new CourseService();
     this.bookingService = new BookingService();
-    this.createMember = this.createMember.bind(this);
-    this.updateMember = this.updateMember.bind(this);
-    this.upgradeMember = this.upgradeMember.bind(this);
-    this.getMemberWithTheirCourse = this.getMemberWithTheirCourse.bind(this);
-    this.getAllMembersWithTheirCourses =
-    this.getAllMembersWithTheirCourses.bind(this);
-    this.getAllCourseWithTheirMembers =
-    this.getAllCourseWithTheirMembers.bind(this);
-    this.removeMember = this.removeMember.bind(this);
-    this.booking = this.booking.bind(this);
   }
-  async createMember(req: Request, res: Response): Promise<void> {
+
+  // Utility method to handle member actions
+  private async handleAction(
+    action: () => Promise<any>,
+    successMessage: string,
+    errorMessage: string,
+    res: Response
+  ) {
     try {
-      const members = await this.memberService.create({ ...req.body });
-      return ResponseHandler.success(
-        res,
-        members,
-        "Member updated successfully",
-      );
+      const result = await action();
+      return ResponseHandler.success(res, result, successMessage);
     } catch (error) {
       console.error(error);
-      throw new Error("Error in admin update Member controller");
-    }
-  }
-  async updateMember(req: Request, res: Response): Promise<void> {
-    try {
-      const { _id, rest } = req.body;
-      const members = await this.memberService.update(_id, rest);
-      return ResponseHandler.success(
-        res,
-        members,
-        "Member updated successfully",
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error in admin update Member controller");
-    }
-  }
-  async upgradeMember(req: Request, res: Response , next:NextFunction): Promise<void> {
-    try {
-      const { id } = req.params;
-      const members = await this.memberService.updateRoleToAdmin(id);
-  
-      return ResponseHandler.success(
-        res,
-        members,
-        "Members with their courses retrieved successfully",
-      );
-    } catch (error:any) {
-       next(error)
-    }
-  }
-  async getMemberWithTheirCourse(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const members = await this.memberService.findWithCourses(id);
-      return ResponseHandler.success(
-        res,
-        members,
-        "Members with their courses retrieved successfully",
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error while fetching users with courses");
-    }
-  }
-  async getAllMembersWithTheirCourses(
-    req: Request,
-    res: Response,
-  ): Promise<void> {
-    try {
-      const members = await this.memberService.getAllMembersWithTheirCourse();
-      return ResponseHandler.success(
-        res,
-        members,
-        "Members with their courses retrieved successfully",
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error while fetching users with courses");
-    }
-  }
-  async getAllCourseWithTheirMembers(
-    req: Request,
-    res: Response,
-  ): Promise<void> {
-    try {
-      const courses =
-        await this.courseService.getAllCoursesWithRemainingCapacity();
-      return ResponseHandler.success(
-        res,
-        courses,
-        "Courses with remaining capacity and related users retrieved successfully",
-      );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in getAllCourseWithTheirMembers controller",
-        error,
-      );
+      return ResponseHandler.error(res, errorMessage, error);
     }
   }
 
-  async removeMember(req: Request, res: Response): Promise<void> {
+  // Create a new member
+  createMember = async (req: Request, res: Response): Promise<void> => {
+    this.handleAction(
+      () => this.memberService.create({ ...req.body }),
+      "Member created successfully",
+      "Error creating member",
+      res
+    );
+  };
+
+  // Update member details
+  updateMember = async (req: Request, res: Response): Promise<void> => {
+    const { _id, rest } = req.body;
+    this.handleAction(
+      () => this.memberService.update(_id, rest),
+      "Member updated successfully",
+      "Error updating member",
+      res
+    );
+  };
+
+  // Upgrade member role to admin
+  upgradeMember = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
     try {
-      const { id } = req.params;
-      const member = await this.memberService.delete(id);
+      const upgradedMember = await this.memberService.updateRoleToAdmin(id);
       return ResponseHandler.success(
         res,
-        member,
-        "member deleted successfully",
+        upgradedMember,
+        "Member upgraded to admin successfully"
       );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in admin removeMember controller",
-        error,
-      );
+    } catch (error) {
+      next(error); // Passing error to the error handler middleware
     }
-  }
-  async booking(req: Request, res: Response): Promise<void> {
-    try {
-      const member = await this.bookingService.create({...req.body});
-      return ResponseHandler.success(
-        res,
-        member,
-        "member deleted successfully",
-      );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in admin removeMember controller",
-        error,
-      );
-    }
-  }
-  async unBooking(req: Request, res: Response): Promise<void> {
-    try {
-      const {id} = req.params
-      const book = await this.bookingService.delete(id);
-      return ResponseHandler.success(
-        res,
-        book,
-        "member deleted successfully",
-      );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in admin removeMember controller",
-        error,
-      );
-    }
-  }
+  };
+
+  // Get a member with their courses by member ID
+  getMemberWithTheirCourse = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    this.handleAction(
+      () => this.memberService.findWithCourses(id),
+      "Member with their courses retrieved successfully",
+      "Error fetching member with courses",
+      res
+    );
+  };
+
+  // Get all members with their courses
+  getAllMembersWithTheirCourses = async (req: Request, res: Response): Promise<void> => {
+    this.handleAction(
+      () => this.memberService.getAllMembersWithTheirCourse(),
+      "Members with their courses retrieved successfully",
+      "Error fetching members with courses",
+      res
+    );
+  };
+
+  // Get all courses with their members
+  getAllCourseWithTheirMembers = async (req: Request, res: Response): Promise<void> => {
+    this.handleAction(
+      () => this.courseService.getAllCoursesWithRemainingCapacity(),
+      "Courses with their members retrieved successfully",
+      "Error fetching courses with members",
+      res
+    );
+  };
+
+  // Remove a member by ID
+  removeMember = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    this.handleAction(
+      () => this.memberService.delete(id),
+      "Member removed successfully",
+      "Error removing member",
+      res
+    );
+  };
+
+  // Create a booking for a member
+  booking = async (req: Request, res: Response): Promise<void> => {
+    this.handleAction(
+      () => this.bookingService.create({ ...req.body }),
+      "Booking created successfully",
+      "Error creating booking",
+      res
+    );
+  };
+
+  // Cancel a booking for a member
+  unBooking = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    this.handleAction(
+      () => this.bookingService.delete(id),
+      "Booking canceled successfully",
+      "Error canceling booking",
+      res
+    );
+  };
 }
 
 export default AdminController;

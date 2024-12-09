@@ -1,85 +1,79 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ResponseHandler } from "../../../../common/utils/ResponseHandler"; // Adjust path as necessary
 import BookingService from "../services/booking.service"; // Adjust path as necessary
-import { Booking, IBooking } from "../models/booking.model";
+import { Booking, IBooking } from "../models/booking.model"; // Adjust path as necessary
 
 class BookingController {
   private bookingService: BookingService;
 
   constructor() {
     this.bookingService = new BookingService();
-    this.create = this.create.bind(this);
-    this.update = this.update.bind(this);
-    this.delete = this.delete.bind(this);
+  }
+
+  // Utility method to handle booking actions
+  private async handleAction(
+    action: () => Promise<any>,
+    successMessage: string,
+    errorMessage: string,
+    res: Response
+  ) {
+    try {
+      const result = await action();
+      return ResponseHandler.success(res, result, successMessage);
+    } catch (error) {
+      console.error(error);
+      return ResponseHandler.error(res, errorMessage, error);
+    }
   }
 
   // Create a new booking
-  async create(req: Request, res: Response): Promise<void> {
+  create = async (req: Request, res: Response): Promise<void> => {
+    const { _id: member } = req.user!;
+    this.handleAction(
+      () => this.bookingService.create({ ...req.body, member }),
+      "Booking created successfully",
+      "Error in createBooking controller",
+      res
+    );
+  };
+
+  // Get all bookings with member and course details
+  getAllBookings = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { _id: member } = req.user!;
-      const booking = await this.bookingService.create({ ...req.body, member });
+      const bookings = await this.bookingService.getAll();
       return ResponseHandler.success(
         res,
-        booking,
-        "Booking created successfully",
+        bookings,
+        "Bookings retrieved successfully"
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in createBooking controller",
-        error,
-      );
+      return ResponseHandler.error(res, "Error fetching bookings", error);
     }
-  }
-
-  // Get booking(s) by ID or all bookings
-  async getAllBookings(): Promise<IBooking[]> {
-    return Booking.find()
-      .populate("member", "firstname lastname email") // Include specific fields of member
-      .populate("course", "title description"); // Include specific fields of course
-  }
+  };
 
   // Update booking by ID
-  async update(req: Request, res: Response): Promise<void> {
-    try {
-      const { id, ...rest } = req.body;
-      const booking = await this.bookingService.update(id, rest);
-      return ResponseHandler.success(
-        res,
-        booking,
-        "Booking updated successfully",
-      );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in updateBooking controller",
-        error,
-      );
-    }
-  }
+  update = async (req: Request, res: Response): Promise<void> => {
+    const { id, ...rest } = req.body;
+    this.handleAction(
+      () => this.bookingService.update(id, rest),
+      "Booking updated successfully",
+      "Error in updateBooking controller",
+      res
+    );
+  };
 
   // Delete booking by ID
-  async delete(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const {_id:member} = req.user!
-      const booking = await this.bookingService.delete(id , member.toString());
-      return ResponseHandler.success(
-        res,
-        booking,
-        "Booking deleted successfully",
-      );
-    } catch (error: any) {
-      console.error(error);
-      return ResponseHandler.error(
-        res,
-        "Error in deleteBooking controller",
-        error,
-      );
-    }
-  }
+  delete = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { _id: member } = req.user!;
+    this.handleAction(
+      () => this.bookingService.delete(id, member.toString()),
+      "Booking deleted successfully",
+      "Error in deleteBooking controller",
+      res
+    );
+  };
 }
 
 export default BookingController;

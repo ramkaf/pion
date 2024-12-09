@@ -7,58 +7,44 @@ class MemberController {
 
   constructor() {
     this.memberService = new MemberService();
-    this.profile = this.profile.bind(this);
-    this.update = this.update.bind(this);
-    this.deleteMember = this.deleteMember.bind(this);
   }
 
-  async profile(req: Request, res: Response): Promise<void> {
+  // Profile route handler
+  profile = async (req: Request, res: Response): Promise<void> => {
     try {
       const { _id } = req.user!;
-      const member = await this.memberService.findWithCourses(
-        _id.toHexString(),
-      );
+      const member = await this.memberService.findWithCourses(_id.toHexString());
       return ResponseHandler.success(res, member);
     } catch (error: any) {
-      // throw new Error ('[sdf')
+      return ResponseHandler.error(res, "Error fetching profile", error);
     }
-  }
+  };
 
-  async update(req: Request, res: Response): Promise<void> {
+  // Update member route handler
+  update = async (req: Request, res: Response): Promise<void> => {
     try {
-      const updatedMember = await this.memberService.update(
-        req.params.id,
-        req.body,
-      );
+      const updatedMember = await this.memberService.update(req.params.id, req.body);
       if (!updatedMember) {
-        res.status(404).json({ message: "Member not found" });
-        return;
+        return ResponseHandler.error(res, "Member not found", 404);
       }
-      res.json({
-        message: "Member updated successfully",
-        Member: updatedMember,
-      });
+      return ResponseHandler.success(res, updatedMember, "Member updated successfully");
     } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: "Error updating Member", error: error.message });
+      return ResponseHandler.error(res, "Error updating member", error);
     }
-  }
+  };
 
-  async deleteMember(req: Request, res: Response): Promise<void> {
+  // Delete member route handler
+  deleteMember = async (req: Request, res: Response): Promise<void> => {
     try {
       const deletedMember = await this.memberService.delete(req.params.id);
       if (!deletedMember) {
-        res.status(404).json({ message: "Member not found" });
-        return;
+        return ResponseHandler.error(res, "Member not found", 404);
       }
-      res.json({ message: "Member deleted successfully" });
+      return ResponseHandler.success(res, null, "Member deleted successfully");
     } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: "Error deleting Member", error: error.message });
+      return ResponseHandler.error(res, "Error deleting member", error);
     }
-  }
+  };
 }
 
 export default MemberController;

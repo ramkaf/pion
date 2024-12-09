@@ -13,16 +13,18 @@ const swaggerDefinition = {
       description: 'swagger api for pion project',
     },
   ],
+  tags: [
+    { name: 'Auth' },
+    { name: 'Admin' },
+    { name: 'Member' },
+    { name: 'Courses' },
+    { name: 'Booking' },
+  ],
 };
 
 const options = {
   swaggerDefinition,
-  apis: [
-    './src/modules/course/routes/*.ts',
-    './src/modules/admin/routes/*.ts',
-    './src/modules/booking/routes/*.ts',
-    './src/modules/member/routes/*.ts',
-  ],
+  apis: ["./src/modules/**/routes/*.ts"], 
 };
 
 const swaggerSpec = swaggerJsdoc(options);
